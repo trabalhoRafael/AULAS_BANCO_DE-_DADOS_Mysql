@@ -1,0 +1,70 @@
+ Exercicio 1. Selecione todos os registros onde Quantity seja menor que 10 ou ProductID seja maior que 20,
+ordenados por OrderDetailID.
+
+SELECT Quantity,ProductID,OrderDetailID
+FROM OrderDetails 
+WHERE Quantity < 10 OR ProductID > 20 
+ORDER BY OrderDetailID;
+===============================================================================================================
+Exercicio 2. Liste os registros onde OrderID seja igual a 100 ou ProductID seja divisível por 5, ordenados
+por Quantity.
+
+SELECT OrderID,ProductID,Quantity
+FROM OrderDetails 
+WHERE OrderID = 100 OR ProductID % 5 = 0 
+ORDER BY Quantity;
+===============================================================================================================
+3. Obtenha os registros onde OrderDetailID seja maior que 50 ou Quantity seja menor que 20,
+ordenados por OrderID.
+
+SELECT OrderDetailID,Quantity,OrderID
+FROM OrderDetails 
+WHERE OrderDetailID > 50 OR Quantity < 20 
+ORDER BY OrderID;
+===============================================================================================================
+Exercicio 4. Liste os registros onde ProductID seja menor que 15 ou OrderID termine com 0, ordenados por
+Quantity.
+
+SELECT ProductID,OrderID,Quantity
+FROM OrderDetails 
+WHERE ProductID <15 OR OrderID LIKE '%0'
+ORDER BY Quantity;
+================================================================================================================
+Exercicio 5. Selecione os registros onde Quantity esteja entre 20 e 50 ou OrderDetailID seja divisível por 3,
+ordenados por OrderID.
+
+SELECT Quantity,OrderDetailID,OrderID
+FROM OrderDetails
+WHERE Quantity BETWEEN 20 AND 50
+OR OrderDetailID % 3 = 0
+ORDER BY OrderID;
+================================================================================================================
+Exercicio 6. Filtre os registros onde OrderID seja maior que 200 ou ProductID termine com 7, ordenados
+por Quantity.
+
+SELECT OrderID,ProductID,Quantity
+FROM OrderDetails
+WHERE OrderID >200 OR ProductID LIKE '%7'
+ORDER BY Quantity;
+==============================================================================================================
+Exercicio 7. Obtenha os registros onde Quantity seja divisível por 4 ou OrderID seja menor que 50,
+ordenados por OrderDetailID.
+
+SELECT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
