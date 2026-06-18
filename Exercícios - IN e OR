@@ -50,8 +50,43 @@ ORDER BY Quantity;
 Exercicio 7. Obtenha os registros onde Quantity seja divisível por 4 ou OrderID seja menor que 50,
 ordenados por OrderDetailID.
 
-SELECT
+SELECT Quantity,OrderID,OrderDetailID
+FROM OrderDetails
+WHERE Quantity % 4 = 0 OR OrderID<50
+ORDER BY OrderDetailID ASC;
+==============================================================================================================
+Exercicio 8. Liste os registros onde ProductID seja igual a 8 ou Quantity esteja entre 10 e 30, ordenados por
+OrderID.
 
+SELECT ProductID,Quantity,OrderID
+FROM OrderDetails
+WHERE ProductID = 8 OR Quantity BETWEEN 10 AND 30
+ORDER BY OrderID ASC;
+==============================================================================================================
+Exercicio 9. Selecione todos os registros onde OrderDetailID termine com 5 ou ProductID seja maior que
+25, ordenados por Quantity.
+
+SELECT OrderDetailID,ProductID,Quantity
+FROM OrderDetails
+WHERE OrderDetailID LIKE'%5' OR ProductID >25
+ORDER BY Quantity ASC;
+==============================================================================================================
+Exercicio 10. Filtre os registros onde OrderID seja igual a 150 ou Quantity seja menor que 15, ordenados por
+OrderDetailID.
+
+SELECT OrderID,OrderDetailID,ProductID,Quantity
+FROM OrderDetails
+WHERE OrderID =150 OR Quantity <15
+ORDER BY OrderDetailID ASC;
+==============================================================================================================
+Exercicio 11. Selecione os registros onde Quantity seja menor que 50 ou OrderID seja igual a 250,
+ordenados por OrderDetailID.
+
+SELECT OrderID,OrderDetailID,ProductID,Quantity
+FROM OrderDetails
+WHERE Quantity < 50 OR OrderID =250
+ORDER BY OrderDetailID;
+==============================================================================================================
 
 
 
