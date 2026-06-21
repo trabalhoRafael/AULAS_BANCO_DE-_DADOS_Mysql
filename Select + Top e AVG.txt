@@ -1,6 +1,6 @@
 -- Lista de exercícios: SELECT AVG FROM WHERE ORDER BY
 
-USE sis04t25;
+USE SISRAFAEL;
 
 -- 1. Selecionar os 5 primeiros registros da tabela.
 
