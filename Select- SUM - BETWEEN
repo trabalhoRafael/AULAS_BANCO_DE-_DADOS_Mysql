@@ -1,0 +1,71 @@
+1. Calcule a soma de Quantity de todos os registros na tabela.
+
+Use SISRAFAEL
+SELECT SUM(Quantity) AS Quantidade_Total 
+FROM OrderDetails;
+==================================================================================
+2. Encontre a soma de Quantity onde o ProductID é maior que 10.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE ProductID > 10;
+==================================================================================
+3. Determine a soma de Quantity onde o OrderID seja menor que 100.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE OrderID < 100;
+=================================================================================
+4. Calcule a soma de Quantity para os registros onde o OrderDetailID seja par.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE OrderDetailID %2=0;
+=================================================================================
+5. Obtenha a soma de Quantity para os registros com OrderID igual a 200.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE OrderID =200;
+================================================================================
+6. Calcule a soma de Quantity para os registros com ProductID entre 5 e 15.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE ProductID BETWEEN 5 AND 15;
+================================================================================
+7. Determine a soma de Quantity para os registros onde Quantity seja maior que 20.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE Quantity >20;
+=================================================================================
+8. Encontre a soma de Quantity onde o OrderID seja ímpar.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE OrderID %2 =1;
+==================================================================================
+9. Calcule a soma de Quantity onde o ProductID seja divisível por 5.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE ProductID %5 =0;
+=================================================================================
+10. Determine a soma de Quantity para registros com OrderDetailID entre 50 e 100.
+
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE OrderDetailID BETWEEN 50 AND 100;
+=================================================================================
+11. Filtre os registros com Quantity maior que 15 e calcule a soma de Quantity.
+
+SELECT Quantity AS Quantidade_Total
+FROM OrderDetails
+WHERE Quantity >15;
+SELECT SUM(Quantity) AS Quantidade_Total
+FROM OrderDetails
+WHERE Quantity ;
+
+
+
