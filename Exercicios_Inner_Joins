@@ -1,0 +1,22 @@
+1. Liste o nome do produto, o nome do fornecedor e o país do fornecedor para
+todos os produtos da categoria 2.
+
+SELECT Products.ProductID AS ID_do_Produto,
+       Products.ProductName AS Nome_do_Produto,
+       Products.SupplierID AS Fornecedor,
+       Products.CategoryID AS Categoria
+FROM Products
+INNER JOIN Suppliers ON Suppliers.SupplierID = Suppliers.SupplierID
+WHERE CategoryID = 2;
+===================================================================================================
+2. Exiba o ID do pedido, a data do pedido e o nome da transportadora
+responsável por cada entrega.
+
+
+SELECT Orders.OrderID AS ID_do_Pedido,
+       Orders.OrderDate AS Data_do_Pedido,
+       Shippers.shipperName AS Transportadora
+FROM Orders
+INNER JOIN Shippers ON Shippers.shipperName =Shippers.ShipperName,
+WHERE CategoryID = 2;
+
