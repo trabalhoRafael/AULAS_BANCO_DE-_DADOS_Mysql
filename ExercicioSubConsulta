@@ -1,0 +1,77 @@
+1. (Subquery no WHERE, LIMIT): Selecione o nome do produto e o seu preço,
+mas apenas para os produtos que custam mais do que a média de preço de
+todos os produtos do sistema. Limite a 15 resultados.
+
+SELECT ProductName AS Nome_do_Produto,
+	   Price AS preço
+FROM Products
+WHERE  Price > (
+    SELECT AVG(Price)
+    FROM Products
+)
+LIMIT 15;
+====================================================================================================================================
+2. (Subquery no WHERE, CONCAT, LIMIT): Concatene o apelido e o nome
+(LastName, FirstName) dos funcionários que nasceram antes do
+funcionário mais novo da empresa (subquery para buscar a data máxima
+de nascimento). Limite aos 5 primeiros.
+
+SELECT CONCAT(LastName,' ' ,FirstName) AS Nome_completo
+FROM Employees
+WHERE BirthDate < (
+      SELECT MAX(BirthDate)
+      FROM Employees)
+LIMIT 5;
+====================================================================================================================================
+3. (Subquery no SELECT, Cálculos, LIMIT): Apresente o ProductName, o
+Price e uma terceira coluna calculada por uma subquery que traga o preço
+médio da sua respectiva categoria (CategoryID). Limite a 10 resultados.
+
+
+SELECT 
+    ProductName AS Nome_do_produto,
+    Price AS Preço,
+    (
+        SELECT AVG(p2.Price)
+        FROM Products AS p2
+        WHERE p2.CategoryID = p1.CategoryID
+    ) AS Media_Preco_Categoria
+FROM Products AS p1
+LIMIT 10;
+=====================================================================================================================================
+4. (Subquery no WHERE, CONCAT): Crie uma lista concatenando o nome do
+cliente e o país, mas apenas para os clientes que residem no mesmo país
+do fornecedor com SupplierID = 1 (obtenha este país via subquery).
+
+SELECT 
+    CONCAT(CustomerName, ' - ', Country) AS Cliente_Pais
+FROM Customers
+WHERE Country = (
+    SELECT Country
+    FROM Suppliers
+    WHERE SupplierID = 1
+);
+======================================================================================================================================
+5. (Subquery no WHERE, Cálculos, LIMIT): Selecione os produtos onde o
+valor calculado do seu stock hipotético (Price * 10) seja inferior ao preço do
+produto mais caro da tabela. Limite a 12 registos.
+
+SELECT
+    ProductName,
+    Price,
+    (Price * 10) AS Stock_Hipotetico
+FROM Products
+WHERE (Price * 10) < (
+    SELECT MAX(Price)
+    FROM Products
+)
+LIMIT 12;
+=======================================================================================================================================
+6. (Subquery no SELECT, CONCAT, LIMIT): Liste os 8 primeiros clientes e,
+numa coluna extra, concatene "Última compra em: " com a data da última
+encomenda (OrderDate) que esse cliente realizou (subquery
+correlacionada na tabela Orders).
+
+
+
+
