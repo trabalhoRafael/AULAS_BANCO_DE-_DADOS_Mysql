@@ -10,7 +10,7 @@ WHERE  Price > (
     FROM Products
 )
 LIMIT 15;
-====================================================================================================================================
+==========================================================================================================================================================================
 2. (Subquery no WHERE, CONCAT, LIMIT): Concatene o apelido e o nome
 (LastName, FirstName) dos funcionários que nasceram antes do
 funcionário mais novo da empresa (subquery para buscar a data máxima
@@ -22,7 +22,7 @@ WHERE BirthDate < (
       SELECT MAX(BirthDate)
       FROM Employees)
 LIMIT 5;
-====================================================================================================================================
+==========================================================================================================================================================================
 3. (Subquery no SELECT, Cálculos, LIMIT): Apresente o ProductName, o
 Price e uma terceira coluna calculada por uma subquery que traga o preço
 médio da sua respectiva categoria (CategoryID). Limite a 10 resultados.
@@ -38,7 +38,7 @@ SELECT
     ) AS Media_Preco_Categoria
 FROM Products AS p1
 LIMIT 10;
-=====================================================================================================================================
+==========================================================================================================================================================================
 4. (Subquery no WHERE, CONCAT): Crie uma lista concatenando o nome do
 cliente e o país, mas apenas para os clientes que residem no mesmo país
 do fornecedor com SupplierID = 1 (obtenha este país via subquery).
@@ -51,7 +51,7 @@ WHERE Country = (
     FROM Suppliers
     WHERE SupplierID = 1
 );
-======================================================================================================================================
+==========================================================================================================================================================================
 5. (Subquery no WHERE, Cálculos, LIMIT): Selecione os produtos onde o
 valor calculado do seu stock hipotético (Price * 10) seja inferior ao preço do
 produto mais caro da tabela. Limite a 12 registos.
@@ -66,11 +66,615 @@ WHERE (Price * 10) < (
     FROM Products
 )
 LIMIT 12;
-=======================================================================================================================================
+==========================================================================================================================================================================
 6. (Subquery no SELECT, CONCAT, LIMIT): Liste os 8 primeiros clientes e,
 numa coluna extra, concatene "Última compra em: " com a data da última
 encomenda (OrderDate) que esse cliente realizou (subquery
 correlacionada na tabela Orders).
+
+SELECT
+    CustomerName,
+    CONCAT(
+        'Última compra em: ',
+        (
+            SELECT MAX(OrderDate)
+            FROM Orders
+            WHERE Orders.CustomerID = Customers.CustomerID
+        )
+    ) AS Ultima_Compra
+FROM Customers
+LIMIT 8;
+==========================================================================================================================================================================
+7. (Subquery no WHERE, LIMIT): Apresente os detalhes da encomenda
+(OrderDetailID, Quantity) onde a quantidade solicitada seja exatamente
+igual à quantidade máxima já registada em qualquer encomenda na tabela.
+Limite a 5.
+ 
+SELECT
+    OrderDetailID,
+    Quantity
+FROM OrderDetails
+WHERE Quantity = (
+    SELECT MAX(Quantity)
+    FROM OrderDetails
+)
+LIMIT 5;
+==========================================================================================================================================================================
+8. (Subquery no WHERE, CONCAT, LIMIT): Concatene o nome da
+transportadora (ShipperName) e o telefone. Exiba apenas aquelas que já
+realizaram entregas para o cliente de CustomerID = 4 (busque os ShipperID
+nas Orders via subquery). Limite a 3.
+ 
+SELECT
+    CONCAT(ShipperName, ' - ', Phone) AS Transportadora
+FROM Shippers
+WHERE ShipperID IN (
+    SELECT ShipperID
+    FROM Orders
+    WHERE CustomerID = 4
+)
+LIMIT 3;
+==========================================================================================================================================================================
+ 9. (Subquery no FROM/Derived Table, Cálculos): A partir de uma subquery
+no FROM que calcule o preço com 20% de desconto para todos os produtos,
+selecione o nome do produto e o novo preço apenas daqueles que o novo
+preço ainda seja superior a 50. Limite a 10.
+ 
+SELECT
+    Produto,
+    Novo_Preco
+FROM (
+    SELECT
+        ProductName AS Produto,
+        Price * 0.80 AS Novo_Preco
+    FROM Products
+) AS Desconto
+WHERE Novo_Preco > 50
+LIMIT 10;
+==========================================================================================================================================================================
+10. (Subquery no WHERE, CONCAT): Liste os nomes dos produtos
+concatenados com a sua unidade (Unit), mas apenas para produtos cujo
+fornecedor (SupplierID) resida na cidade de 'London' (descubra o ID do
+fornecedor via subquery na tabela Suppliers).
+ 
+SELECT
+    CONCAT(ProductName, ' - ', Unit) AS Produto_Unidade
+FROM Products
+WHERE SupplierID IN (
+    SELECT SupplierID
+    FROM Suppliers
+    WHERE City = 'London'
+);
+=============================-- BLOCO 2: Subqueries com Agrupamentos (GROUP BY, COUNT)=================================================================================
+11. (Subquery com IN, GROUP BY, COUNT): Agrupe as encomendas por
+EmployeeID e conte-as, mas faça isso apenas para encomendas que contêm o
+produto 'Chais' (descubra os OrderID via subquery em OrderDetails e
+Products).
+ 
+SELECT
+    EmployeeID,
+    COUNT(*) AS Total_Encomendas
+FROM Orders
+WHERE OrderID IN (
+    SELECT OrderID
+    FROM OrderDetails
+    WHERE ProductID IN (
+        SELECT ProductID
+        FROM Products
+        WHERE ProductName = 'Chais'
+    )
+)
+GROUP BY EmployeeID;
+==========================================================================================================================================================================
+12. (Subquery no WHERE, GROUP BY, COUNT, LIMIT): Conte quantos clientes
+existem por cidade, mas apenas para as cidades que também possuem
+fornecedores (busque a lista de cidades únicas via subquery na tabela
+Suppliers). Limite a 5 resultados.
+ 
+SELECT City AS Cidade, COUNT(*) AS 'Total de Clientes'
+FROM Customers
+WHERE City IN (SELECT DISTINCT City FROM Suppliers)
+GROUP BY City
+LIMIT 5;
+==========================================================================================================================================================================
+13. (Subquery com IN, GROUP BY, COUNT): Agrupe os detalhes de
+encomendas (OrderDetails) por ProductID e conte quantas vezes foram
+vendidos. Filtre a consulta principal para incluir apenas produtos da
+categoria 'Beverages' (busque o CategoryID via subquery).
+ 
+SELECT ProductID, COUNT(*) AS 'Vezes Vendido'
+FROM OrderDetails
+WHERE ProductID IN (
+    SELECT ProductID FROM products
+    WHERE CategoryID = (SELECT CategoryID FROM Categories WHERE CategoryName = 'Beverages')
+)
+GROUP BY ProductID;
+========================================================================================================================================================================== 
+14. (Subquery no FROM, GROUP BY, Cálculos): Crie uma subquery que liste
+OrderID e o valor total em quantidade da encomenda. Na consulta principal,
+agrupe por faixa de quantidade (ex: > 50) e conte quantas encomendas se
+encaixam.
+ 
+SELECT
+    CASE WHEN TotalQuantidade > 50 THEN 'Acima de 50' ELSE 'Até 50' END AS Faixa,
+    COUNT(*) AS 'Total de Encomendas'
+FROM (
+    SELECT OrderID, SUM(Quantity) AS TotalQuantidade
+    FROM OrderDetails
+    GROUP BY OrderID
+) AS EncomendasTotais
+GROUP BY Faixa;
+========================================================================================================================================================================== 
+15. (Subquery correlacionada, GROUP BY, COUNT): Liste as categorias
+(CategoryName) e conte os produtos, mas considere apenas produtos cujo
+preço é superior à média de preço da sua própria categoria (subquery
+correlacionada no WHERE).
+ 
+SELECT c.CategoryName AS Categoria, COUNT(*) AS 'Total de Produtos'
+FROM products p
+JOIN Categories c ON p.CategoryID = c.CategoryID
+WHERE p.Price > (
+    SELECT AVG(p2.Price) FROM products p2 WHERE p2.CategoryID = p.CategoryID
+)
+GROUP BY c.CategoryName;
+========================================================================================================================================================================== 
+16. (Subquery no WHERE com EXISTS, GROUP BY, COUNT): Agrupe os
+transportadores (ShipperID) na tabela Orders e conte as encomendas. Use
+EXISTS com uma subquery para considerar apenas encomendas feitas no ano
+de 1996.
+ 
+SELECT o.ShipperID, COUNT(*) AS 'Total de Encomendas'
+FROM Orders o
+WHERE EXISTS (
+    SELECT 1 FROM Orders o2
+    WHERE o2.ShipperID = o.ShipperID AND YEAR(o2.OrderDate) = 1996
+)
+GROUP BY o.ShipperID;
+ ==========================================================================================================================================================================
+ 17. (Subquery no WHERE, GROUP BY, COUNT, LIMIT): Conte o número de
+produtos oferecidos por cada fornecedor (SupplierID). Filtre apenas os
+fornecedores que estão em países onde também existem clientes (subquery
+em Customers). Limite a 10.
+ 
+SELECT SupplierID, COUNT(*) AS 'Total de Produtos'
+FROM products
+WHERE SupplierID IN (
+    SELECT SupplierID FROM Suppliers
+    WHERE Country IN (SELECT DISTINCT Country FROM Customers)
+)
+GROUP BY SupplierID
+LIMIT 10;
+ 
+==========================================================================================================================================================================
+18. (Subquery no SELECT, GROUP BY): Agrupe os clientes por país e exiba
+o país, seguido de uma subquery no SELECT que conte o número total de
+encomendas (Orders) originadas desse país.
+ 
+SELECT
+    c.Country AS Pais,
+    (
+        SELECT COUNT(*) FROM Orders o
+        JOIN Customers c2 ON o.CustomerID = c2.CustomerID
+        WHERE c2.Country = c.Country
+    ) AS 'Total de Encomendas'
+FROM Customers c
+GROUP BY c.Country;
+==========================================================================================================================================================================
+ 19. (Subquery com IN, GROUP BY, Cálculos, LIMIT): Calcule a soma da
+quantidade (Quantity) vendida por ProductID. Inclua apenas produtos cujo
+preço seja superior a 20 euros (via subquery em Products). Limite aos 5
+produtos mais vendidos.
+ 
+SELECT ProductID, SUM(Quantity) AS 'Total Vendido'
+FROM OrderDetails
+WHERE ProductID IN (SELECT ProductID FROM products WHERE Price > 20)
+GROUP BY ProductID
+ORDER BY SUM(Quantity) DESC
+LIMIT 5;
+==========================================================================================================================================================================
+20. (Subquery no FROM, GROUP BY, COUNT): Faça uma subquery que
+selecione os clientes que fizeram mais de 3 encomendas. Na consulta
+principal, conte de quais cidades vêm esses clientes "VIP".
+ 
+SELECT City AS Cidade, COUNT(*) AS 'Total de Clientes VIP'
+FROM Customers
+WHERE CustomerID IN (
+    SELECT CustomerID FROM Orders
+    GROUP BY CustomerID
+    HAVING COUNT(*) > 3
+)
+GROUP BY City;
+======================================================================-- BLOCO 3: Filtros Avançados pós-Agrupamento (HAVING e SUBQUERY)============================================
+21. (GROUP BY, HAVING com Subquery, COUNT): Agrupe as encomendas por
+EmployeeID e conte-as. Mostre apenas os funcionários cuja contagem de
+encomendas seja superior à média de encomendas processadas por todos os
+funcionários (subquery no HAVING).
+ 
+SELECT EmployeeID, COUNT(*) AS 'Total de Encomendas'
+FROM Orders
+GROUP BY EmployeeID
+HAVING COUNT(*) > (
+    SELECT AVG(Qtd) FROM (
+        SELECT COUNT(*) AS Qtd FROM Orders GROUP BY EmployeeID
+    ) AS Media
+);
+==========================================================================================================================================================================
+22. (GROUP BY, HAVING com Subquery, CONCAT): Agrupe os produtos por
+CategoryID e concatene os nomes das categorias. Use HAVING para mostrar
+apenas categorias onde o preço médio dos produtos é maior que o preço
+médio do sistema inteiro.
+ 
+SELECT
+    CONCAT('Categoria: ', c.CategoryName) AS Categoria,
+    AVG(p.Price) AS 'Preco Medio'
+FROM products p
+JOIN Categories c ON p.CategoryID = c.CategoryID
+GROUP BY c.CategoryName
+HAVING AVG(p.Price) > (SELECT AVG(Price) FROM products);
+==========================================================================================================================================================================
+23. (GROUP BY, HAVING com Subquery, COUNT): Conte os clientes por país.
+Exiba apenas os países (HAVING) onde a quantidade de clientes é igual ao
+número de clientes que vivem no 'USA' (obtenha este número via
+subquery).
+ 
+SELECT Country AS Pais, COUNT(*) AS 'Total de Clientes'
+FROM Customers
+GROUP BY Country
+HAVING COUNT(*) = (SELECT COUNT(*) FROM Customers WHERE Country = 'USA');
+========================================================================================================================================================================== 
+24. (GROUP BY, HAVING com Subquery, Cálculos): Agrupe OrderDetails por
+OrderID e calcule a quantidade total. Mostre apenas as encomendas cuja
+quantidade total é superior à quantidade máxima faturada numa única
+linha de OrderDetails de todo o histórico.
+ 
+SELECT OrderID, SUM(Quantity) AS 'Quantidade Total'
+FROM OrderDetails
+GROUP BY OrderID
+HAVING SUM(Quantity) > (SELECT MAX(Quantity) FROM OrderDetails);
+==========================================================================================================================================================================
+25. (GROUP BY, HAVING com Subquery com ALL): Agrupe os produtos por
+fornecedor e conte-os. Use HAVING para mostrar apenas os fornecedores
+cuja contagem de produtos seja superior à contagem de produtos de TODOS
+os fornecedores do país 'UK' (subquery com ALL).
+ 
+SELECT SupplierID, COUNT(*) AS 'Total de Produtos'
+FROM products
+GROUP BY SupplierID
+HAVING COUNT(*) > ALL (
+    SELECT COUNT(*)
+    FROM products p
+    JOIN Suppliers s ON p.SupplierID = s.SupplierID
+    WHERE s.Country = 'UK'
+    GROUP BY p.SupplierID
+);
+==========================================================================================================================================================================
+26. (GROUP BY, HAVING com Subquery, COUNT, LIMIT): Agrupe as
+encomendas pelo CustomerID e conte-as. Mostre apenas os clientes que
+encomendaram mais vezes do que o cliente com ID 1. Limite a 5
+resultados.
+ 
+SELECT CustomerID, COUNT(*) AS 'Total de Encomendas'
+FROM Orders
+GROUP BY CustomerID
+HAVING COUNT(*) > (SELECT COUNT(*) FROM Orders WHERE CustomerID = 1)
+LIMIT 5;
+==========================================================================================================================================================================
+27. (GROUP BY, HAVING com Subquery, Cálculos): Agrupe os produtos pela
+sua categoria e calcule o preço máximo em cada uma. Mostre apenas as
+categorias cujo preço máximo seja inferior a 100 euros (validação via
+subquery no HAVING, em vez de WHERE).
+ 
+SELECT CategoryID, MAX(Price) AS 'Preco Maximo'
+FROM products
+GROUP BY CategoryID
+HAVING MAX(Price) < (SELECT 100 FROM DUAL);
+==========================================================================================================================================================================
+28. (GROUP BY, COUNT, HAVING com EXISTS): Conte as encomendas por
+EmployeeID. Mostre o resultado apenas se existir (via subquery EXISTS no
+HAVING) alguma encomenda no sistema registada na data '1996-07-04'.
+ 
+SELECT EmployeeID, COUNT(*) AS 'Total de Encomendas'
+FROM Orders
+GROUP BY EmployeeID
+HAVING EXISTS (
+    SELECT 1 FROM Orders o2 WHERE o2.OrderDate = '1996-07-04'
+);
+==========================================================================================================================================================================
+29. (GROUP BY, HAVING com Subquery, Cálculos): Calcule a soma da
+quantidade em OrderDetails agrupada por ProductID. Exiba apenas os
+produtos cuja soma de vendas seja superior à soma de vendas do produto
+'Tofu' (obtenha o ID e a soma via subquery).
+ 
+SELECT ProductID, SUM(Quantity) AS 'Total Vendido'
+FROM OrderDetails
+GROUP BY ProductID
+HAVING SUM(Quantity) > (
+    SELECT SUM(od.Quantity)
+    FROM OrderDetails od
+    JOIN products p ON od.ProductID = p.ProductID
+    WHERE p.ProductName = 'Tofu'
+);
+==========================================================================================================================================================================
+30. (GROUP BY, HAVING com Subquery escalar cruzada): Conte os
+fornecedores por cidade. Mostre apenas as cidades cuja contagem seja
+exatamente igual ao número total de transportadoras (Shippers)
+registadas no banco (subquery simples no HAVING).
+ 
+SELECT City AS Cidade, COUNT(*) AS 'Total de Fornecedores'
+FROM Suppliers
+GROUP BY City
+HAVING COUNT(*) = (SELECT COUNT(*) FROM Shippers);
+=======================================================================-- BLOCO 4: Extração e Backup Estratégico============================================================
+31. (SELECT INTO, Subquery no WHERE): Crie a tabela
+Produtos_FornecedoresEUA copiando os dados dos produtos que são
+fornecidos por empresas localizadas nos 'USA' (descubra via subquery na
+tabela Suppliers).
+ 
+CREATE TABLE Produtos_FornecedoresEUA AS
+SELECT * FROM products
+WHERE SupplierID IN (SELECT SupplierID FROM Suppliers WHERE Country = 'USA');
+==========================================================================================================================================================================
+32. (SELECT INTO, Subquery no WHERE com IN): Guarde na tabela
+Clientes_Compradores apenas os dados dos clientes que já realizaram pelo
+menos uma encomenda no sistema (use subquery com IN buscando os
+CustomerID na tabela Orders).
+ 
+CREATE TABLE Clientes_Compradores AS
+SELECT * FROM Customers
+WHERE CustomerID IN (SELECT DISTINCT CustomerID FROM Orders);
+==========================================================================================================================================================================
+33. (SELECT INTO, Subquery Escalar, Cálculos): Crie uma tabela
+Produtos_AcimaDaMedia contendo o ProductName e o Price dos itens cujo
+preço supera a média geral de preços (calculada via subquery).
+ 
+CREATE TABLE Produtos_AcimaDaMedia AS
+SELECT ProductName, Price
+FROM products
+WHERE Price > (SELECT AVG(Price) FROM products);
+==========================================================================================================================================================================
+34. (SELECT INTO, Subquery com EXISTS, CONCAT): Usando EXISTS,
+identifique os funcionários que já atenderam clientes da cidade de
+'London'. Concatene os seus nomes e insira os dados na nova tabela
+Equipa_Londres.
+ 
+CREATE TABLE Equipa_Londres AS
+SELECT CONCAT(e.LastName, ', ', e.FirstName) AS NomeCompleto
+FROM Employees e
+WHERE EXISTS (
+    SELECT 1 FROM Orders o
+    JOIN Customers c ON o.CustomerID = c.CustomerID
+    WHERE o.EmployeeID = e.EmployeeID AND c.City = 'London'
+);
+==========================================================================================================================================================================
+35. (SELECT INTO, Subquery no FROM/Derived Table): A partir de uma
+subquery que lista os OrderID e a soma das quantidades, crie uma tabela
+Encomendas_Volumosas inserindo apenas aquelas com soma total superior a
+100.
+ 
+CREATE TABLE Encomendas_Volumosas AS
+SELECT * FROM (
+    SELECT OrderID, SUM(Quantity) AS TotalQuantidade
+    FROM OrderDetails
+    GROUP BY OrderID
+) AS Sub
+WHERE TotalQuantidade > 100;
+==========================================================================================================================================================================
+36. (SELECT INTO, Subquery Correlacionada): Crie um backup chamado
+Ultimas_Encomendas contendo os dados da tabela Orders, mas apenas a
+encomenda mais recente de cada cliente (validado via subquery
+correlacionada comparando as datas).
+ 
+CREATE TABLE Ultimas_Encomendas AS
+SELECT * FROM Orders o
+WHERE o.OrderDate = (
+    SELECT MAX(o2.OrderDate) FROM Orders o2 WHERE o2.CustomerID = o.CustomerID
+);
+==========================================================================================================================================================================
+37. (SELECT INTO, Subquery no WHERE com NOT IN): Extraia para a tabela
+Categorias_Sem_Produtos os dados das categorias que atualmente não
+possuem nenhum produto associado na tabela Products (use NOT IN com
+subquery).
+ 
+CREATE TABLE Categorias_Sem_Produtos AS
+SELECT * FROM Categories
+WHERE CategoryID NOT IN (
+    SELECT DISTINCT CategoryID FROM products WHERE CategoryID IS NOT NULL
+);
+==========================================================================================================================================================================
+38. (SELECT INTO, Subquery com ALL, LIMIT): Crie a tabela Super_Clientes
+com os 5 clientes que possuem o CustomerID maior do que todos os IDs dos
+funcionários da tabela Employees (subquery com > ALL).
+ 
+CREATE TABLE Super_Clientes AS
+SELECT * FROM Customers
+WHERE CustomerID > ALL (SELECT EmployeeID FROM Employees)
+LIMIT 5;
+==========================================================================================================================================================================
+39. (SELECT INTO, Subquery Escalar no SELECT): Crie a tabela
+Tabela_Auditoria que contenha o ProductName, o Price e uma terceira
+coluna estática gerada por uma subquery que traga o COUNT total de
+produtos no banco.
+ 
+CREATE TABLE Tabela_Auditoria AS
+SELECT
+    ProductName,
+    Price,
+    (SELECT COUNT(*) FROM products) AS 'Total de Produtos no Sistema'
+FROM products;
+==========================================================================================================================================================================
+40. (SELECT INTO, Subquery Múltipla): Guarde na tabela Logistica_Ativa
+os dados das transportadoras (Shippers) que realizaram encomendas
+contendo produtos da categoria 'Seafood' (exige subqueries aninhadas:
+Orders -> OrderDetails -> Products).
+ 
+CREATE TABLE Logistica_Ativa AS
+SELECT * FROM Shippers
+WHERE ShipperID IN (
+    SELECT ShipperID FROM Orders
+    WHERE OrderID IN (
+        SELECT OrderID FROM OrderDetails
+        WHERE ProductID IN (
+            SELECT ProductID FROM products
+            WHERE CategoryID = (SELECT CategoryID FROM Categories WHERE CategoryName = 'Seafood')
+        )
+    )
+);
+=======================================================================BLOCO 5: Desafio Mestre - Consultas Aninhadas Nível Profissional==================================
+ 
+41. (CONCAT, COUNT, GROUP BY, HAVING, LIMIT, Subquery Correlacionada):
+Concatene o nome do cliente com a sua cidade. Conte as encomendas de
+cada um. Filtre (HAVING) apenas para mostrar os clientes cuja contagem de
+compras é superior à média de compras dos clientes da sua própria
+cidade (subquery correlacionada no HAVING). Limite a 5.*/
+ 
+SELECT
+    CONCAT(c.CustomerName, ' - ', c.City) AS 'Cliente e Cidade',
+    COUNT(o.OrderID) AS 'Total de Compras'
+FROM Customers c
+JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.CustomerName, c.City
+HAVING COUNT(o.OrderID) > (
+    SELECT AVG(Qtd) FROM (
+        SELECT COUNT(o2.OrderID) AS Qtd
+        FROM Customers c2
+        JOIN Orders o2 ON c2.CustomerID = o2.CustomerID
+        WHERE c2.City = c.City
+        GROUP BY c2.CustomerID
+    ) AS MediaCidade
+)
+LIMIT 5;
+==========================================================================================================================================================================
+42. (Cálculos, SELECT INTO, Subquery no SELECT, LIMIT): Crie a tabela
+Relatorio_Precos. Insira o nome do produto, o preço atual, e uma coluna
+calculada (Diferença para a Média) que subtrai do preço atual a média
+geral de preços (obtida via subquery). Limite aos 20 primeiros.
+ 
+CREATE TABLE Relatorio_Precos AS
+SELECT
+    ProductName AS 'Nome do Produto',
+    Price AS 'Preco Atual',
+    (Price - (SELECT AVG(Price) FROM products)) AS 'Diferenca para a Media'
+FROM products
+LIMIT 20;
+==========================================================================================================================================================================
+43. (GROUP BY, COUNT, CONCAT, Subquery no WHERE com IN): Concatene
+"Categoria: " e o nome da categoria. Conte os produtos associados. Faça
+isso apenas para as categorias que possuem produtos com preço superior a
+50 (validação via subquery no WHERE).
+ 
+SELECT
+    CONCAT('Categoria: ', c.CategoryName) AS Categoria,
+    COUNT(p.ProductID) AS 'Total de Produtos'
+FROM Categories c
+JOIN products p ON c.CategoryID = p.CategoryID
+WHERE c.CategoryID IN (SELECT CategoryID FROM products WHERE Price > 50)
+GROUP BY c.CategoryName;
+==========================================================================================================================================================================
+44. (SELECT INTO, HAVING com Subquery, GROUP BY, COUNT): Crie a tabela
+Funcionarios_Destaque. Agrupe as encomendas por funcionário, conte-as, e
+insira os dados apenas daqueles que processaram mais encomendas do que
+o funcionário de ID 3 (subquery no HAVING).
+ 
+CREATE TABLE Funcionarios_Destaque AS
+SELECT EmployeeID, COUNT(*) AS 'Total de Encomendas'
+FROM Orders
+GROUP BY EmployeeID
+HAVING COUNT(*) > (SELECT COUNT(*) FROM Orders WHERE EmployeeID = 3);
+==========================================================================================================================================================================
+45. (LIMIT, CONCAT, Subquery no FROM, Cálculos): Usando uma subquery no
+FROM (Derived Table) que calcule o stock pendente de cada produto nas
+OrderDetails, exiba as 10 linhas concatenando o nome do produto e o
+texto " - Ação Necessária", ordenadas pelos valores calculados.
+ 
+SELECT CONCAT(p.ProductName, ' - Ação Necessária') AS Produto
+FROM products p
+JOIN (
+    SELECT ProductID, SUM(Quantity) AS StockPendente
+    FROM OrderDetails
+    GROUP BY ProductID
+) AS Pendentes ON p.ProductID = Pendentes.ProductID
+ORDER BY Pendentes.StockPendente DESC
+LIMIT 10;
+==========================================================================================================================================================================
+46. (COUNT, GROUP BY, HAVING, Subquery no WHERE): Liste os
+fornecedores e conte quantos produtos cada um fornece. Considere no
+cálculo apenas produtos da categoria 'Condiments' (descubra o ID via
+subquery). Exiba apenas os que fornecem mais de 1 produto.
+ 
+SELECT s.SupplierID, COUNT(p.ProductID) AS 'Total de Produtos'
+FROM Suppliers s
+JOIN products p ON s.SupplierID = p.SupplierID
+WHERE p.CategoryID = (SELECT CategoryID FROM Categories WHERE CategoryName = 'Condiments')
+GROUP BY s.SupplierID
+HAVING COUNT(p.ProductID) > 1;
+==========================================================================================================================================================================
+47. (Cálculos, CONCAT, LIMIT, Subquery com EXISTS): Multiplique o preço
+por 1.05 (aumento de 5%) e concatene "Novo Preço: " com o valor. Aplique
+isto apenas a produtos fornecidos por empresas europeias (valide via
+subquery EXISTS cruzando países na tabela Suppliers). Limite a 15.
+ 
+SELECT CONCAT('Novo Preço: ', ROUND(p.Price * 1.05, 2)) AS 'Novo Preco'
+FROM products p
+WHERE EXISTS (
+    SELECT 1 FROM Suppliers s
+    WHERE s.SupplierID = p.SupplierID
+    AND s.Country IN ('UK', 'Germany', 'France', 'Spain', 'Italy', 'Portugal',
+                       'Sweden', 'Norway', 'Denmark', 'Finland', 'Netherlands', 'Belgium')
+)
+LIMIT 15;
+==========================================================================================================================================================================
+48. (SELECT INTO, GROUP BY, COUNT, Subquery Escalar no SELECT): Crie a
+tabela Estatistica_Cidades. Agrupe os clientes por cidade, conte-os e
+adicione uma coluna extra via subquery que exiba o número total
+absoluto de clientes no sistema (para futura percentagem).*/
+ 
+CREATE TABLE Estatistica_Cidades AS
+SELECT
+    City AS Cidade,
+    COUNT(*) AS 'Total de Clientes na Cidade',
+    (SELECT COUNT(*) FROM Customers) AS 'Total de Clientes no Sistema'
+FROM Customers
+GROUP BY City;
+==========================================================================================================================================================================
+ 49. (CONCAT, HAVING com Subquery, GROUP BY, COUNT, LIMIT): Concatene o
+ano da encomenda (extraído da data) com " - Total: ". Agrupe por ano e
+conte. Mostre apenas os anos (HAVING) onde o volume de vendas superou o
+volume do ano de 1997 (subquery). Limite a 3 resultados.*/
+ 
+SELECT
+    CONCAT(YEAR(OrderDate), ' - Total: ') AS Ano,
+    COUNT(*) AS Total
+FROM Orders
+GROUP BY YEAR(OrderDate)
+HAVING COUNT(*) > (SELECT COUNT(*) FROM Orders WHERE YEAR(OrderDate) = 1997)
+LIMIT 3;
+==========================================================================================================================================================================
+50. (O Teste Final Absoluto - Todos os comandos): Crie a tabela
+Relatorio_Diretoria (SELECT INTO). Concatene o apelido e nome do
+funcionário (CONCAT). Agrupe por funcionário (GROUP BY) e conte o total
+de itens diferentes vendidos por eles (COUNT). Considere apenas vendas
+efetuadas para clientes do 'USA' (Subquery no WHERE com IN). Filtre para
+exibir apenas funcionários que venderam acima da média de itens por
+encomenda (HAVING com Subquery). Limite os resultados ao Top 3 (LIMIT).*/
+ 
+CREATE TABLE Relatorio_Diretoria AS
+SELECT
+    CONCAT(e.LastName, ', ', e.FirstName) AS Funcionario,
+    COUNT(DISTINCT od.ProductID) AS 'Total de Itens Diferentes'
+FROM Employees e
+JOIN Orders o ON e.EmployeeID = o.EmployeeID
+JOIN OrderDetails od ON o.OrderID = od.OrderID
+WHERE o.CustomerID IN (SELECT CustomerID FROM Customers WHERE Country = 'USA')
+GROUP BY e.EmployeeID, e.LastName, e.FirstName
+HAVING COUNT(DISTINCT od.ProductID) > (
+    SELECT AVG(ItensPorEncomenda) FROM (
+        SELECT od2.OrderID, COUNT(DISTINCT od2.ProductID) AS ItensPorEncomenda
+        FROM OrderDetails od2
+        GROUP BY od2.OrderID
+    ) AS Sub
+)
+LIMIT 3;
+
 
 
 
