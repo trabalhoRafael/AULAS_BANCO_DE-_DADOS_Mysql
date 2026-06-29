@@ -1,4 +1,4 @@
-1. (Subquery no WHERE, LIMIT): Selecione o nome do produto e o seu preço,
+1. (Subquery no WHERE, LIMIT): Selecione o nome do produto e o seu preço, 
 mas apenas para os produtos que custam mais do que a média de preço de
 todos os produtos do sistema. Limite a 15 resultados.
 
